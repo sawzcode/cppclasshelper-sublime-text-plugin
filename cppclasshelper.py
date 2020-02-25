@@ -1,4 +1,4 @@
-import sublime, sublime_plugin, os
+import sublime, sublime_plugin, os, re
 from sublime_lib import ResourcePath
 
 from .method_generator.exceptions import ClassValidationException
@@ -147,13 +147,13 @@ class GenerateMethodDefinitionCommand(sublime_plugin.WindowCommand):
 	method_definitions = None
 	method_to_insert = None
 	settings = None
+	using_namespace_list = None
 
 	NEWLINE_AFTER_TEMPLATE = False
 	NEWLINE_AFTER_METHOD = False
 	PLACE_CURSOR_BETWEEN_BRACKETS = False
 
 	def run(self):
-
 		# get filename of active view and get class name which to search the header
 		vars = self.window.extract_variables()
 		class_name = vars["file_base_name"]
@@ -189,9 +189,10 @@ class GenerateMethodDefinitionCommand(sublime_plugin.WindowCommand):
 
 	def _generate_method(self, class_file):
 
+		self.using_namespace_list = self._find_namespaces(self.window.extract_variables()["file"])
+
 		with open(class_file, 'r') as file:
 			source_code = file.read()
-
 
 		try:
 			generator = Generator(source_code)
@@ -220,6 +221,11 @@ class GenerateMethodDefinitionCommand(sublime_plugin.WindowCommand):
 			"place_cursor_between_brackets",
 			self.PLACE_CURSOR_BETWEEN_BRACKETS
 		)
+
+		if method._class.namespace is None or any(method._class.namespace in s for s in self.using_namespace_list):
+			method.add_option("skip_namespace", True)
+		else:
+			method.add_option("skip_namespace", False)
 
 		self.window.run_command('insert_method', {
 			'method': str(method),
@@ -251,6 +257,14 @@ class GenerateMethodDefinitionCommand(sublime_plugin.WindowCommand):
 							class_files.append(os.path.join(root, file_basename))
 
 		return class_files
+
+	def _find_namespaces(self, file_path):
+		with open(file_path, 'r') as file:
+			source_code = file.read()
+		namespaces = []
+		for (ns) in re.findall(r"(using namespace)\s+([\w_:]+)", source_code):
+			namespaces.append(ns)
+		return namespaces
 
 
 class InsertMethodCommand(sublime_plugin.TextCommand):
