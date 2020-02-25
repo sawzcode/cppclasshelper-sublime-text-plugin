@@ -126,7 +126,7 @@ class Method:
                 method += " "
 
         # insert 2 colons if class has namespace
-        if self._class.namespace is not None:
+        if not self._options["skip_namespace"]:
             method += self._class.namespace + "::"
 
         method += self._class.name

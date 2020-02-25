@@ -74,7 +74,7 @@ class NamespaceTokenizer:
         :return:
         """
 
-        match = re.search(r"(namespace)\s+([\w:]+)", input_str)
+        match = re.search(r"(namespace)\s+([\w_:]+)", input_str)
 
         if match and match.group(2) is None and match.group(1) is None:
             raise ClassValidationException("Could not parse class namespace")
