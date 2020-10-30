@@ -5,15 +5,17 @@ class Template:
 	def __init__(self, name):
 		self._template = None
 		self._name = name
-		self._filename = None
+		self.file = None
 
 
 	def load(self, filename):
 		# load template file
-		self._filename = str(filename)
+		self.file = open(filename)
 
 		# reading template
-		self._template = filename.read_text()
+		self._template = self.file.read()
+
+		self.file.close()
 		 
 
 	def render(self, **values):

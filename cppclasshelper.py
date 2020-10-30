@@ -1,5 +1,6 @@
 import sublime, sublime_plugin, os
-from sublime_lib import ResourcePath
+import os.path
+
 
 from .method_generator.exceptions import ClassValidationException
 from .method_generator.generator import Generator
@@ -12,11 +13,12 @@ class CreateCppClassCommand(sublime_plugin.WindowCommand):
 	def run(self, **kwargs):
 
 		# plugin settings
-		self.package_dir = ResourcePath.from_file_path(__file__).parent
+		self.package_dir = os.path.dirname(os.path.abspath(__file__)) + "\\"
+
+
 		self.plugin_name = 'C++ Classhelper'
-		self.template_dir_name = 'templates'
-		# self.template_dir = "{}/{}/".format(self.package_dir, self.template_dir_name)
-		self.template_dir = self.package_dir / self.template_dir_name
+		self.template_dir_name = 'templates\\'
+		self.template_dir = self.package_dir + self.template_dir_name
 
 		# global settings
 		self.settings = sublime.load_settings("C++ Classhelper.sublime-settings")
@@ -51,13 +53,13 @@ class CreateCppClassCommand(sublime_plugin.WindowCommand):
 		header_template = Template("C++ Header Style")
 
 		try:
-			source_file_template.load(self.template_dir / 'sourcefile.template')
-			header_file_template.load(self.template_dir / 'headerfile.template')
+			source_file_template.load(self.template_dir + 'sourcefile.template')
+			header_file_template.load(self.template_dir + 'headerfile.template')
 
 			if self.settings.get('use_pragma_once'):
-				header_template.load(self.template_dir / 'header-new.template')
+				header_template.load(self.template_dir + 'header-new.template')
 			else:
-				header_template.load(self.template_dir / 'header-old.template')
+				header_template.load(self.template_dir + 'header-old.template')
 
 		except OSError as e:
 			sublime.error_message("Error while loading class template: {}".format(str(e)))
