@@ -1,5 +1,4 @@
 import sublime, sublime_plugin, os
-from sublime_lib import ResourcePath
 
 from .method_generator.exceptions import ClassValidationException
 from .method_generator.generator import Generator
@@ -12,10 +11,9 @@ class CreateCppClassCommand(sublime_plugin.WindowCommand):
 	def run(self, **kwargs):
 
 		# plugin settings
-		self.package_dir = ResourcePath.from_file_path(__file__).parent
+		self.package_dir = dir(__file__)
 		self.plugin_name = 'C++ Classhelper'
 		self.template_dir_name = 'templates'
-		# self.template_dir = "{}/{}/".format(self.package_dir, self.template_dir_name)
 		self.template_dir = self.package_dir / self.template_dir_name
 
 		# global settings
